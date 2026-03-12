@@ -30,3 +30,14 @@
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
