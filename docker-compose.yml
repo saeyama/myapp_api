@@ -1,0 +1,70 @@
+services:
+  db:
+    image: mysql:8.4
+    container_name: myapp_db
+    environment:
+      MYSQL_DATABASE: myapp_development
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root_password
+    ports:
+      - "3308:3306"
+    volumes:
+      - myapp_mysql_data:/var/lib/mysql
+    networks:
+      - myapp_network
+
+  back:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: myapp_api
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
+    volumes:
+      - .:/rails
+    ports:
+      - "3010:3000"
+    depends_on:
+      - db
+    tty: true
+    stdin_open: true
+    env_file:
+      - .env
+    environment:
+      - RAILS_ENV=development
+    networks:
+      - myapp_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: myapp_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - myapp_network
+
+  sidekiq:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: myapp_sidekiq
+    command: bundle exec sidekiq
+    volumes:
+      - .:/rails
+    depends_on:
+      - db
+      - redis
+    env_file:
+      - .env
+    networks:
+      - myapp_network
+
+volumes:
+  myapp_mysql_data:
+  redis_data:
+
+networks:
+  myapp_network:
+    driver: bridge
