@@ -1,8 +1,9 @@
+redis_url = ENV.fetch('REDIS_URL', 'redis://redis:6379/0')
+
 Sidekiq.configure_server do |config|
-  # Docker内のサービス名「redis」を指定
-  config.redis = { url: 'redis://redis:6379/1' }
+  config.redis = { url: redis_url }
 end
 
 Sidekiq.configure_client do |config|
-  config.redis = { url: 'redis://redis:6379/1' }
+  config.redis = { url: redis_url }
 end
