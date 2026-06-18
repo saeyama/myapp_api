@@ -41,3 +41,15 @@
 # Ignore OS files
 .DS_Store
 Thumbs.db
+
+# Terraform
+.terraform/
+**/.terraform/*
+
+# 状態管理ファイル（超重要：AWSの秘密情報が入るため絶対にGitに入れない！）
+*.tfstate
+*.tfstate.*
+
+# パスワードなどを直接書き込む変数ファイル
+*.tfvars
+*.tfvars.json
