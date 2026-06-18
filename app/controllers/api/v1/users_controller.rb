@@ -1,24 +1,26 @@
 class Api::V1::UsersController < ApplicationController
-  def sync
-    # Lambdaから送られてくる予定のデータを受け取る
-    cognito_sub = params[:cognito_sub]
-    email = params[:email]
-    nickname = params[:nickname]
+  # 必要であればここで認証チェック（JWT検証など）を入れる
+  # before_action :authenticate_request 
 
-    # subが空っぽならエラーで返す（安全対策）
-    if cognito_sub.blank?
+  def sync
+    # フロントエンドから送られてきたデータを安全に取得
+    sub = params[:cognito_sub]
+    
+    if sub.blank?
       render json: { error: 'cognito_subは必須です' }, status: :bad_request
       return
     end
 
-    # Usersテーブルから同じsubを持つ人を探し、いなければ新規作成する（find_or_create_by）
-    user = User.find_or_create_by(cognito_sub: cognito_sub) do |u|
-      u.email = email
-      u.nickname = nickname
-    end
+    # 1. 既存のユーザーを探すか、新規インスタンスを作成
+    # 2. find_or_initialize_byを使うと、見つかった場合にその後の項目更新が楽になります
+    user = User.find_or_initialize_by(cognito_sub: sub)
+    
+    # 3. 送られてきた最新情報で属性を上書き（同期）
+    user.email = params[:email]
+    user.nickname = params[:nickname]
 
-    # 無事に保存（または取得）できたかどうかの結果を返す
-    if user.persisted?
+    # 4. 保存（更新があれば更新、新規なら作成）
+    if user.save
       render json: { message: 'ユーザーの同期が完了しました', user: user }, status: :ok
     else
       render json: { error: '保存に失敗しました', errors: user.errors.full_messages }, status: :unprocessable_entity
