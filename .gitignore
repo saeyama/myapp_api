@@ -53,3 +53,4 @@ Thumbs.db
 # パスワードなどを直接書き込む変数ファイル
 *.tfvars
 *.tfvars.json
+terraform/lambda.zip

@@ -1,0 +1,4 @@
+rails_api_url        = "https://your-domain.com"
+cognito_user_pool_id = "ap-northeast-1_xxxxxxxxx"
+aws_account_id       = "xxxxxxxxxxxx"
+aws_profile          = "AdministratorAccess-xxxxxxxxxxxx"
